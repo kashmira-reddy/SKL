@@ -35,21 +35,35 @@ API_KEY = "c2f60506-7838-48ae-a824-97ddeae1d5fd"
 
 
 
-def create_request_url(breed):
-    base_url="https://api.thedogapi.com/v1/breeds/search?q={}"
-    request_url=base_url.format(breed)
+def create_request_url(breed, page):
+    #base_url="https://api.thedogapi.com/v1/breeds/search?q={}"
+    base_url="https://api.thedogapi.com/v1/breeds?attach_breed={}&limit=25&page={}"
+    request_url=base_url.format(breed, page)
     r=requests.get(request_url)
     data=r.text
     lst=json.loads(data)
-    
+    #print(lst[0])
     name_lst=[]
-    name_lst.append(lst[0]['name'])
-    # print(lst[0]['name'])
+    for i in lst:
+        name_lst.append(i['name'])
+    #print(name_lst)
     life_span=[]
-    life_span.append(lst[0]["life_span"])
+    for i in lst:
+        life_span.append(i['life_span'])
     #print(life_span)
     temperament=[]
-    temperament.append()
-    return lst
+    for i in lst:
+        temperament.append(i['temperament'])
+    #print(temperament)
+    final=list(zip(name_lst,life_span,temperament))
+    #print(final)
+    return final
 
-print(create_request_url("Bloodhound"))
+first=create_request_url(1,1)
+print(first)
+# second=create_request_url(2,2)
+# print(second)
+# third=create_request_url(3,3)
+# print(third)
+# fourth=create_request_url(4,4)
+# print(fourth)
