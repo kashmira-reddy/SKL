@@ -32,13 +32,6 @@ def create_request_url(breed, page):
     r=requests.get(request_url)
     data=r.text
     lst=json.loads(data)
-    #print(lst[0])
-    # id_lst=[]
-    # count=0
-    # for i in lst:
-    #     id_lst.append(count)
-    #     count+=1
-    # #print(id_lst)
     name_lst=[]
     for i in lst:
         name_lst.append(i['name'])
@@ -54,9 +47,6 @@ def create_request_url(breed, page):
     final=list(zip(name_lst,life_span,temperament))
     #print(final)
     return final
-
-# first=create_request_url(1,1)
-# print(first)
 
 def print_dog():
     dog_lst=[]
@@ -84,16 +74,13 @@ def add_dogs_from_json(cur, conn):
     cur.execute("CREATE TABLE IF NOT EXISTS Dogs (id INTEGER PRIMARY KEY, 'name' TEXT, 'life_span' TEXT, 'temperament' TEXT)")
     dog_lst=print_dog()
     #print(dog_lst)
-    count=0
-    for i in dog_lst:
-        # cur.execute("SELECT id FROM Species WHERE title=?", (i['species'],))
-        # x=cur.fetchone()[0]
-        print(i[0])
-    #   cur.execute("INSERT INTO Dogs(id, name, life_span, temperament) VALUES (?,?,?,?)", (count, i['name'], x, int(i['age']), int(i['cuteness']), int(i['aggressiveness'])))
-        count+=1
-    # conn.commit()
-    
-    
+    count=1
+    for lst in dog_lst:
+        for tup in lst:
+            #print(tup[0])
+            cur.execute("INSERT INTO Dogs(id, name, life_span, temperament) VALUES (?,?,?,?)", (count, tup[0], tup[1], tup[2]))
+            count+=1
+    conn.commit()
 
 def main():
     # SETUP DATABASE AND TABLE
