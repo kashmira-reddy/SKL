@@ -33,10 +33,12 @@ def create_request_url(breed, page):
     data=r.text
     lst=json.loads(data)
     #print(lst[0])
-    id_lst=[]
-    for i in lst:
-        id_lst.append(i['reference_image_id'])
-    #print(id_lst)
+    # id_lst=[]
+    # count=0
+    # for i in lst:
+    #     id_lst.append(count)
+    #     count+=1
+    # #print(id_lst)
     name_lst=[]
     for i in lst:
         name_lst.append(i['name'])
@@ -49,7 +51,7 @@ def create_request_url(breed, page):
     for i in lst:
         temperament.append(i['temperament'])
     #print(temperament)
-    final=list(zip(id_lst,name_lst,life_span,temperament))
+    final=list(zip(name_lst,life_span,temperament))
     #print(final)
     return final
 
@@ -78,15 +80,25 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-def add_dog_data(cur, conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS Dogs (id TEXT PRIMARY KEY, 'name' TEXT, 'life_span' TEXT, 'temperament' TEXT)")
-    cur.execute("INSERT INTO Dogs(id, name, life_span, temperament) VALUES (?,?,?,?)", ('H1dGlxqNQ', 'Basenji', '10 - 12 years', 'Affectionate, Energetic, Alert, Curious, Playful, Intelligent'))
-    conn.commit()
+def add_dogs_from_json(cur, conn):
+    cur.execute("CREATE TABLE IF NOT EXISTS Dogs (id INTEGER PRIMARY KEY, 'name' TEXT, 'life_span' TEXT, 'temperament' TEXT)")
+    dog_lst=print_dog()
+    #print(dog_lst)
+    count=0
+    for i in dog_lst:
+        # cur.execute("SELECT id FROM Species WHERE title=?", (i['species'],))
+        # x=cur.fetchone()[0]
+        print(i[0])
+    #   cur.execute("INSERT INTO Dogs(id, name, life_span, temperament) VALUES (?,?,?,?)", (count, i['name'], x, int(i['age']), int(i['cuteness']), int(i['aggressiveness'])))
+        count+=1
+    # conn.commit()
+    
+    
 
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    add_dog_data(cur, conn)
+    add_dogs_from_json(cur, conn)
 
 if __name__ == "__main__":
     main()
