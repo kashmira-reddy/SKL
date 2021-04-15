@@ -71,16 +71,20 @@ def print_dog():
     return dog_lst
 
 def add_dogs_from_json(cur, conn):
-    cur.execute("CREATE TABLE IF NOT EXISTS Dogs (id INTEGER PRIMARY KEY, 'name' TEXT, 'life_span' TEXT, 'temperament' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Dogs (id INTEGER PRIMARY KEY, 'breed' TEXT, 'life_span' TEXT, 'temperament' TEXT)")
     dog_lst=print_dog()
     #print(dog_lst)
     count=1
     for lst in dog_lst:
         for tup in lst:
             #print(tup[0])
-            cur.execute("INSERT INTO Dogs(id, name, life_span, temperament) VALUES (?,?,?,?)", (count, tup[0], tup[1], tup[2]))
+            cur.execute("INSERT INTO Dogs(id, breed, life_span, temperament) VALUES (?,?,?,?)", (count, tup[0], tup[1], tup[2]))
             count+=1
     conn.commit()
+
+
+
+
 
 def main():
     # SETUP DATABASE AND TABLE
