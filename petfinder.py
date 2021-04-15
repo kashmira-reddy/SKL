@@ -36,24 +36,32 @@ def setUpDatabase(db_name):
 #access_token="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJCNW1EZE9FTUZOWXFiV0I3d2t1bHlmbGR4RHYzYzIxQXlsa1pyczJMbmJLNkU3U3ZGRiIsImp0aSI6Ijk4YTYzYzVjY2NhZThiYTI5ZTVjZTBkY2NiYzZlYzBhYzFjYzE1ZWZmYmFlOWRlYmY3NmQ2NGEyOWFkMmJlMTM0MmZlOTc3MTVlMDkxN2UzIiwiaWF0IjoxNjE4NDk5NDc0LCJuYmYiOjE2MTg0OTk0NzQsImV4cCI6MTYxODUwMzA3NCwic3ViIjoiIiwic2NvcGVzIjpbXX0.jKzhZdQCZfekjqay8FS6STvG6HB2TRgPckFiKT68Diab42J1CpvA_CzAeWYzjtLSVzqx_EJo-wMCklK6TaikOyrkp_m_1vnPOTC2XWVi5VOulJlWAw4C7ThzPaxDp_E8zCT-JIr-sTX8Lpol54Xpqc9Ciqz3nq5I8OpEaa6sUYh6r-8iyNRe6iuOQXXw_w5trDYh9EVkcgPCjvOYJHBBMKe5AlH1HbaTruY_B5ve_Kc_LsOnLQH3rlx7_tT8cj2nXk8UcxeucfnChEJxdS3OkVMxYcyDeF2UbzHUX1f8T_Ncsto1sjzyZosZw3QCxaHnzDSMqdLYN8xCJ_RQ-dz9qg"
 
 def database(cur, conn, access_token):
-    base_url="https://api.petfinder.com/v2/animals?&limit=25"
+    base_url="https://api.petfinder.com/v2/animals?limit=25"
     #params = {"breed": breed, "location": location}
     #r=requests.get(base_url, headers={"Authorization": "Bearer " + access_token}, params=params)
     
     cur.execute("SELECT breed FROM Dogs")
     lst2 = cur.fetchall()
+    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (id INTEGER PRIMARY KEY, 'breed' TEXT, 'location' TEXT)")
     for i in lst2:
         params = {"breed": i}
         # "location": location}
         r=requests.get(base_url, headers={"Authorization": "Bearer " + access_token}, params=params)
         data=r.text
         lst=json.loads(data)
+        
+        cur.execute("SELECT Petfinder.id JOIN Dogs AND Petfinder WHERE Petfinder.id = Dogs.id AND Dogs.breed = ?", (i, ))
+        dogId = cur.fetchall()
+        
+        # insert location data into row and petfinder where petfinder.id = dog.id
+    print(lst)
     return lst
+    
 
 
 def main():
     # SETUP DATABASE AND TABLE
-    cur, conn = setUpDatabase('petfinder.db')
+    cur, conn = setUpDatabase('dogs.db')
     access_token="eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJCNW1EZE9FTUZOWXFiV0I3d2t1bHlmbGR4RHYzYzIxQXlsa1pyczJMbmJLNkU3U3ZGRiIsImp0aSI6Ijk4YTYzYzVjY2NhZThiYTI5ZTVjZTBkY2NiYzZlYzBhYzFjYzE1ZWZmYmFlOWRlYmY3NmQ2NGEyOWFkMmJlMTM0MmZlOTc3MTVlMDkxN2UzIiwiaWF0IjoxNjE4NDk5NDc0LCJuYmYiOjE2MTg0OTk0NzQsImV4cCI6MTYxODUwMzA3NCwic3ViIjoiIiwic2NvcGVzIjpbXX0.jKzhZdQCZfekjqay8FS6STvG6HB2TRgPckFiKT68Diab42J1CpvA_CzAeWYzjtLSVzqx_EJo-wMCklK6TaikOyrkp_m_1vnPOTC2XWVi5VOulJlWAw4C7ThzPaxDp_E8zCT-JIr-sTX8Lpol54Xpqc9Ciqz3nq5I8OpEaa6sUYh6r-8iyNRe6iuOQXXw_w5trDYh9EVkcgPCjvOYJHBBMKe5AlH1HbaTruY_B5ve_Kc_LsOnLQH3rlx7_tT8cj2nXk8UcxeucfnChEJxdS3OkVMxYcyDeF2UbzHUX1f8T_Ncsto1sjzyZosZw3QCxaHnzDSMqdLYN8xCJ_RQ-dz9qg"
     database(cur, conn, access_token)
 
