@@ -33,16 +33,16 @@ def setUpDatabase(db_name):
 
 def database(cur, conn):
 
-    url = "https://wft-geo-db.p.rapidapi.com/v1/geo/countries"
+    # url = "https://wft-geo-db.p.rapidapi.com/v1/geo/countries"
 
-    headers = {
-        'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
-        'x-rapidapi-host': "wft-geo-db.p.rapidapi.com"
-    }
+    # headers = {
+    #     'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
+    #     'x-rapidapi-host': "wft-geo-db.p.rapidapi.com"
+    # }
 
-    response = requests.request("GET", url, headers=headers)
+    # response = requests.request("GET", url, headers=headers)
 
-    print(response.text)
+    # print(response.text)
 
     # url = "https://wft-geo-db.p.rapidapi.com/v1/geo/adminDivisions"
 
@@ -55,24 +55,87 @@ def database(cur, conn):
 
     # response = requests.request("GET", url, headers=headers, params=querystring)
 
-    # #print(response.text)
-    # data=response.text
-    # lst=json.loads(data)
-    # county_lst=[]
-    # for i in lst:
-    #     county_lst.append(i['name'])
-    # # print(county_lst)
-    # state_lst=[]
-    # for i in lst:
-    #     state_lst.append(i['region'])
-    # #print(life_span)
-    # country_lst=[]
-    # for i in lst:
-    #     country_lst.append(i['country'])
-    # #print(temperament)
-    # final=list(zip(county_lst,state_lst,country_lst))
-    # #print(final)
-    # return final
+    #print(response.text)
+
+    
+
+    
+    # url = "https://wft-geo-db.p.rapidapi.com/v1/geo/countries/US/regions"
+
+    # headers = {
+    #     'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
+    #     'x-rapidapi-host': "wft-geo-db.p.rapidapi.com"
+    # }
+
+    # response = requests.request("GET", url, headers=headers)
+
+    #print(response.text)
+    # url = "https://wft-geo-db.p.rapidapi.com/v1/geo/cities/Q65/locatedIn"
+
+    # headers = {
+    #     'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
+    #     'x-rapidapi-host': "wft-geo-db.p.rapidapi.com"
+    # }
+    # url = "https://andruxnet-world-cities-v1.p.rapidapi.com/"
+
+    # querystring = {"searchby":"city"}
+
+    # headers = {
+    #     'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
+    #     'x-rapidapi-host': "andruxnet-world-cities-v1.p.rapidapi.com"
+    # }
+
+    # response = requests.request("GET", url, headers=headers, params=querystring)
+
+    # print(response.text)
+
+    # url = "https://countries-cities.p.rapidapi.com/location/city/nearby"
+
+    # querystring = {"latitude":"55.11","longitude":"37.02","radius":"25","min_population":"99","max_population":"10000"}
+
+    # headers = {
+    #     'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
+    #     'x-rapidapi-host': "countries-cities.p.rapidapi.com"
+    # }
+
+    # response = requests.request("GET", url, headers=headers, params=querystring)
+
+    # print(response.text)  
+
+    url = "https://wft-geo-db.p.rapidapi.com/v1/geo/adminDivisions"
+
+    headers = {
+        'x-rapidapi-key': "87f9585f5amshdbd854af653b797p1eda27jsnc90391356883",
+        'x-rapidapi-host': "wft-geo-db.p.rapidapi.com"
+    }
+
+    response = requests.request("GET", url, headers=headers)
+
+    print(response.text)
+    # counter=0
+    # # while counter != 10:
+    # response = requests.request("GET", url, headers=headers)
+        # counter+=1
+
+    print(response.text)
+    data=response.text
+    data_dict=json.loads(data)
+    county_lst=[]
+    print(data_dict)
+    for i in data_dict:
+        county_lst.append(i['latitude'])
+    print(county_lst)
+    state_lst=[]
+    for i in data_dict:
+        state_lst.append(i[0])
+    #print(life_span)
+    country_lst=[]
+    for i in data_dict:
+        country_lst.append(i[0])
+    #print(temperament)
+    final=list(zip(county_lst,state_lst,country_lst))
+    #print(final)
+    return final
 
 
 
@@ -82,9 +145,9 @@ def database(cur, conn):
 
 
 
-    # base_url="api.geonames.org/postalCodeSearch?key="
+    # # base_url="api.geonames.org/postalCodeSearch?key="
 
-    # cur.execute("SELECT breed FROM Dogs")
+    # # cur.execute("SELECT breed FROM Dogs")
     # lst2 = cur.fetchall()
     # cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (id INTEGER PRIMARY KEY, 'breed' TEXT, 'location' TEXT)")
     # for i in lst2:
