@@ -4,7 +4,6 @@ import sqlite3
 import os
 import requests
 
-
 def read_cache(CACHE_FNAME):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     CACHE_FNAME = dir_path + '/' + "cache_petfinder.json"
@@ -21,7 +20,6 @@ def read_cache(CACHE_FNAME):
         CACHE_DICTION = {}
         return CACHE_DICTION
 
-
 def write_cache(CACHE_FNAME, CACHE_DICT):
     CACHE_FNAME = "cache_petfinder.json"
     cache_file = open(CACHE_FNAME, 'w', encoding="utf-8")
@@ -29,21 +27,16 @@ def write_cache(CACHE_FNAME, CACHE_DICT):
     cache_file.write(name)
     cache_file.close()
 
-
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=9Eg5BvX7HjlsB5jLqk23V8Nraj4AiRJOpVxEUjsYswcGYx19AV&client_secret=CxGRH6Mc6nQdqvjwd4PzZcyzE2e0kXOe9iuPEv9k" https://api.petfinder.com/v2/oauth2/token
-
-
-
-
+#curl -d "grant_type=client_credentials&client_id=ZXhVgwZt9gkDhm14UDoREhu9CevOv6Gdio2XbVk555HikW4I0s&client_secret=LnCCrPT2wRpuxXvJ2rLrS0sXMXnrfX38dZPsuDp5" https://api.petfinder.com/v2/oauth2/token
 
 def create_request_url(cur, conn, access_token):
-    base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=25"
+    base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=1"
     r = requests.get(base_url, headers={"Authorization": "Bearer " + access_token})
     data = r.text
     d = json.loads(data)
@@ -63,7 +56,7 @@ def database(cur, conn, access_token):
     cur.execute("SELECT breed FROM Dogs")
     breed_lst = cur.fetchall()
     #print(breed_lst)
-    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (id INTEGER PRIMARY KEY, 'breed' TEXT, 'location' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (id INTEGER PRIMARY KEY, 'breed' TEXT)")
     dog_lst=create_request_url(cur, conn, access_token)
     #print(dog_lst)
     for i in breed_lst:
@@ -71,42 +64,64 @@ def database(cur, conn, access_token):
         for x in i:
             #print(x)
             if x in dog_lst:
-                print(x)
+                #print(x)
                 #print(i)
-                base_url="https://api.petfinder.com/v2/animals?breed={}&limit=1"
+                base_url="https://api.petfinder.com/v2/animals?breed={}"
                 request_url=base_url.format(x)
                 r=requests.get(request_url, headers={"Authorization": "Bearer " + access_token})
                 data=r.text
+                name_lst=[]
                 data_dict=json.loads(data)
-                print(data_dict)
-                #print(lst)
-            #cur.execute("INSERT INTO Petfinder (id,breed) VALUES (?,?,?)",(x, i[x], )) #add location
-            cur.execute("SELECT Petfinder.id FROM Petfinder JOIN Dogs WHERE Petfinder.id = Dogs.id AND Dogs.breed = ?", (str(i), ))
-    return cur.fetchall()
+                for i in range(len(data_dict['animals'])):
+                    name_lst.append(data_dict['animals'][i]['breeds']['primary'])
+                    cur.execute("INSERT INTO Petfinder (id, breed) VALUES (?,?)",(i+1, x)) #add location
+                #print(name_lst)
+                #cur.execute("SELECT Petfinder.breed FROM Petfinder JOIN Dogs WHERE Petfinder.id = Dogs.id AND Dogs.breed = ?", (str(i), ))
+                conn.commit()
+        #print(data_dict)
+    
+            #print(i[x])
+            #print(lst)
+    
+    # name_lst=[]
+    # for i in range(len(data_dict['animals'])):
+    #     name_lst.append(data_dict['animals'][i]['breeds']['primary'])
+    #print(name_lst)
+    # print(name_lst)
+    # latitude=[]
+    # for i in data_dict:
+    #     latitude.append(i['latitude'])
+    # #print(life_span)
+    # longitude=[]
+    # for i in data_dict:
+    #     longitude.append(i['longitude'])
+    # #print(temperament)
+    # final=list(zip(name_lst,latitude,longitude))
+    # #print(final)
+    
+
+    # return final
         #     insert location data into row and petfinder where petfinder.id = dog.id
     #print(data_dict)
     #return data_dict
 
-   
+#dog table: breed, id, height, weight, temperament
+#petfinder table: we are getting breed, latitude, longitude, id
+#location table: city, state, country based on coordinates
 
-
+#calculation: how many of each dog breed in each country
 
 
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5RWc1QnZYN0hqbHNCNWpMcWsyM1Y4TnJhajRBaVJKT3BWeEVVanNZc3djR1l4MTlBViIsImp0aSI6IjkwYzE1NmE2OTQ0ZTZhYjhkNDVjNzYwNGIyNDFhODVlZDZiYWRlNTFlMTkxNDQ0YzhkNGJkNjQ1ZGU5ZDc1NmExZTdiOTQyZmRiZDRjZTc0IiwiaWF0IjoxNjE4Njk3MDYxLCJuYmYiOjE2MTg2OTcwNjEsImV4cCI6MTYxODcwMDY2MSwic3ViIjoiIiwic2NvcGVzIjpbXX0.tZAoY9quET-pXQnUGHceDgTkHltJcfJWWebsR7xiSgnvAdGwWFey2HGbx7cMsDcF2gw1LtNhOuUF-UHXxWbORD0dGCZXFJq5P9l84JQbQaDKkFWoBaYwmRSrmzmOex2DXKvLU1m6sBsFPochvJmBFsfAHBe-mTCpLHMAdgT8eeJj-wKM_I9wVKLH5TwFMlan1QMK0slq_8BcK1vuinm9SBR9L0hpaMh7wFWLf5unG09pTSw_ZNLfgr8xmoTGi3q-6H6TvR9Beg2MIljpGCD-Ktif7iv_vuWvIhjNcWZh-EkTLxsBqph54dHQZp3QqAqPElpLrm4TB4ARGccm2BQ-uQ"
+    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJaWGhWZ3dadDlna0RobTE0VURvUkVodTlDZXZPdjZHZGlvMlhiVms1NTVIaWtXNEkwcyIsImp0aSI6Ijk1YTZhMTQwN2FmODM4YmI4NDBhMmNjNjU2MWU3M2NjNzQ1MWNmNDllMDM3MGM4Yjg0ZTk3ZDk4YzI4NzM0MWUwNDJkYmMxOGU5YWRjM2E5IiwiaWF0IjoxNjE4NzY3OTM1LCJuYmYiOjE2MTg3Njc5MzUsImV4cCI6MTYxODc3MTUzNSwic3ViIjoiIiwic2NvcGVzIjpbXX0.N2W7oyRlcODGaZvIZ4oCVSkaTfw5S_ppChVaZ4kCPWsGWeXIXEsqY8_RY_kZw1RMJCcudIPOET9vMhcc_RhjdLunHAcrxLBVdREG27t894Cjefe-nUhFjVGwWN3OSIKZ89fLDbzTPR8lfn5oLAmsOyLym1D5fcdzKEzQPekp177-3qlj891EYkrMWB8cX6dtkXP7kE4Xat_S4vJ0PU6P9QGFUhaSft5_wcbyaWmMn5fxiT3Z17azRBkrzzBwpIqmi-agK-16Ny29sTVoaQ7-nl0v98iidSw6EMW93wtssES8-m0SH6Lz1Kg0-huYS_MIeoleTg3Tp-OukirVAF2Dqw"
     database(cur, conn, access_token)
     create_request_url(cur, conn, access_token)
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 
 
 # import json
