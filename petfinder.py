@@ -36,7 +36,7 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=B5mDdOEMFNYqbWB7wkulyfldxDv3c21AylkZrs2LnbK6E7SvFF&client_secret=Y9vdaRqu4dJNpqXfkX2W0FEQKC5jzzT9hz77Tn7F" https://api.petfinder.com/v2/oauth2/token
+#curl -d "grant_type=client_credentials&client_id=ZXhVgwZt9gkDhm14UDoREhu9CevOv6Gdio2XbVk555HikW4I0s&client_secret=LnCCrPT2wRpuxXvJ2rLrS0sXMXnrfX38dZPsuDp5" https://api.petfinder.com/v2/oauth2/token
 
 
 
@@ -61,16 +61,41 @@ def create_request_url(cur, conn, access_token):
                         count+=1
     #print(dog_lst)
     return dog_lst
+
+
+def create_request_url2(cur, conn, cities, states, countries):
+    base_url = f"http://api.openweathermap.org/data/2.5/weather?q={cities},{states},{countries}&appid=e6367458ffd6fac896cd01a8ec82131c"
+    r = requests.get(base_url)
+    data = r.text
+    d = json.loads(data)
+    print(d)
+    weather_lst = []
+    count = 0
+    while count < 25:
+        for i in d:
+            new_lst=d[i]
+        # print(new_lst)
+            # for one in new_lst:
+            #print(one)
+            for name in new_lst.keys():
+                if name=='name':
+                    weather_lst.append(i[name])
+                    count+=1
+    #print(dog_lst)
+    return weather_lst
         
 def database(cur, conn, access_token):
     cur.execute("SELECT breed FROM Dogs")
     breed_lst = cur.fetchall()
     #print(breed_lst)
-    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (num INTEGER PRIMARY KEY, 'breed' TEXT, 'city' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (num INTEGER PRIMARY KEY, 'breed' TEXT, 'city' TEXT, 'state' TEXT, 'country' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'city' TEXT, 'state' TEXT, 'country' TEXT, 'weather' TEXT)")
     dog_lst=create_request_url(cur, conn, access_token)
     #print(dog_lst)
     name_lst=[]
     city_lst=[]
+    state_lst=[]
+    country_lst=[]
     for i in breed_lst:
         #print(i)
         for x in i:
@@ -90,12 +115,17 @@ def database(cur, conn, access_token):
                 
                     name_lst.append(data_dict['animals'][index]['breeds']['primary'])
                     city_lst.append(data_dict['animals'][index]['contact']['address']['city'])
-    #print(name_lst)
+                    state_lst.append(data_dict['animals'][index]['contact']['address']['state'])
+                    country_lst.append(data_dict['animals'][index]['contact']['address']['country'])
     print(city_lst)
+    # weather_lst = create_request_url2(cur, conn, city_lst, state_lst, country_lst)
+    #print(name_lst)
+    
     for i in range(len(name_lst)):
-        cur.execute("INSERT INTO Petfinder (num, breed, city) VALUES (?,?,?)",(i+1, name_lst[i], city_lst[i])) #add location #iterate over doglist again
-                    # #print(name_lst)
+        cur.execute("INSERT INTO Petfinder (num, breed, city, state, country) VALUES (?,?,?,?,?)",(i+1, name_lst[i], city_lst[i], state_lst[i], country_lst[i])) #add location #iterate over doglist again
+        cur.execute("INSERT INTO Weather (num2, city, state, country, weather) VALUES (?,?,?,?,?)",(i+1, city_lst[i], state_lst[i], country_lst[i], weather_lst[i])) #add location #iterate over doglist again
         cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
+        cur.execute("SELECT * FROM Weather JOIN Petfinder WHERE Weather.city = Petfinder.city AND Weather.state = Petfinder.state")
     conn.commit()
         #print(data_dict)
     
@@ -139,9 +169,10 @@ def database(cur, conn, access_token):
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJCNW1EZE9FTUZOWXFiV0I3d2t1bHlmbGR4RHYzYzIxQXlsa1pyczJMbmJLNkU3U3ZGRiIsImp0aSI6ImRmYTgzOWE0ODFiODUyZjU2MTI4OTJjOGRkZTA5YzRmYWY3MjJiOTc0ZWY5ODA2ODgyZGJlZGNmNTQ0YTZkZmEwY2JjMzk5YTIyMDdlMjVjIiwiaWF0IjoxNjE4ODU1NzA0LCJuYmYiOjE2MTg4NTU3MDQsImV4cCI6MTYxODg1OTMwNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.P9ecWig-YXsCN931BISBNXL0yipg1bkferbVGdMtto7Y-vd0kEc91LqRnhsQvYwC7QFeqZAiguKdahoqCZV5ErqLydOpODTvC_40Ul3_wBeQpqzvKMM9fbKVk5Hm7ezWmKF8fmjkCZAOpH8fWyAw_peI79CbOdWOfS6J-lS1BKo5PGSkUnsd-cOtc3dzj19sA-BVlL_yUzpvVMxDi0xN1Cb92GpM9lG1mEcpU2BBXaun5hJ9Ni7yE3bRyLDcaA3wcZnSaTXflcLJwVWyFqn0-mod0ZFwn799dBhX7tEDpdMN8WnuLlo_ERexBGKDEtTN95g0GeI_N0jSqOoN8bHkGg"
-    database(cur, conn, access_token)
-    create_request_url(cur, conn, access_token)
+    # access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJaWGhWZ3dadDlna0RobTE0VURvUkVodTlDZXZPdjZHZGlvMlhiVms1NTVIaWtXNEkwcyIsImp0aSI6ImNkY2YyMjdiZWYzNTk4YzRkZWIzNGNjZmNlZDE2ZGE3NmEyNDYyYTYyNDk2OGZmOTVhOWRmYmRmYmUxNTU2YTFlMzRiN2E4MWI0ZGI5NDRiIiwiaWF0IjoxNjE4ODYxNzMzLCJuYmYiOjE2MTg4NjE3MzMsImV4cCI6MTYxODg2NTMzMywic3ViIjoiIiwic2NvcGVzIjpbXX0.qlOD8RfAuk3GDtVluPbnR9jcw4lEZGygzBpdyuCcgcgwwSV7j_7NXZkyAsnzVVCBbH5SJLRE2Ekh2xxRUyFH6YQo4fs7XBf6jOpBxdbwUoASLX-hZPjnmUTqosGD4nmUbIOyUBa3EmH5xq9wXsML42BcRUENinr8KPUREa55s85xTlN2wHWapIFd0QUI6fTOcnkQbI0p-zYn4m5auq6rezf8uqfkAVPbVfWSSfvxi_bTNNzWf76OfKiArUhycu3RD-O3wL3gmUwtJS_nWJ2P7APiegRTCTos8mzishldaY6TooAhE-Tp5oH3c49bdJ7foGkex8fSy7VuyiaoJtlabA"
+    # database(cur, conn, access_token)
+    # create_request_url(cur, conn, access_token)
+    weather_lst = create_request_url2(cur, conn, "Houston", "TX", "US")
 
 
 if __name__ == "__main__":
