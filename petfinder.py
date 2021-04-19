@@ -4,6 +4,7 @@ import sqlite3
 import os
 import requests
 
+
 def read_cache(CACHE_FNAME):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     CACHE_FNAME = dir_path + '/' + "cache_petfinder.json"
@@ -20,6 +21,7 @@ def read_cache(CACHE_FNAME):
         CACHE_DICTION = {}
         return CACHE_DICTION
 
+
 def write_cache(CACHE_FNAME, CACHE_DICT):
     CACHE_FNAME = "cache_petfinder.json"
     cache_file = open(CACHE_FNAME, 'w', encoding="utf-8")
@@ -27,13 +29,18 @@ def write_cache(CACHE_FNAME, CACHE_DICT):
     cache_file.write(name)
     cache_file.close()
 
+
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=9Eg5BvX7HjlsB5jLqk23V8Nraj4AiRJOpVxEUjsYswcGYx19AV&client_secret=CxGRH6Mc6nQdqvjwd4PzZcyzE2e0kXOe9iuPEv9k" https://api.petfinder.com/v2/oauth2/token
+#curl -d "grant_type=client_credentials&client_id=B5mDdOEMFNYqbWB7wkulyfldxDv3c21AylkZrs2LnbK6E7SvFF&client_secret=Y9vdaRqu4dJNpqXfkX2W0FEQKC5jzzT9hz77Tn7F" https://api.petfinder.com/v2/oauth2/token
+
+
+
+
 
 def create_request_url(cur, conn, access_token):
     base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=1"
@@ -59,10 +66,11 @@ def database(cur, conn, access_token):
     cur.execute("SELECT breed FROM Dogs")
     breed_lst = cur.fetchall()
     #print(breed_lst)
-    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (num INTEGER PRIMARY KEY, 'breed' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (num INTEGER PRIMARY KEY, 'breed' TEXT, 'city' TEXT)")
     dog_lst=create_request_url(cur, conn, access_token)
     #print(dog_lst)
     name_lst=[]
+    city_lst=[]
     for i in breed_lst:
         #print(i)
         for x in i:
@@ -81,9 +89,11 @@ def database(cur, conn, access_token):
                 for index in range(len(data_dict['animals'])):
                 
                     name_lst.append(data_dict['animals'][index]['breeds']['primary'])
+                    city_lst.append(data_dict['animals'][index]['contact']['address']['city'])
     #print(name_lst)
+    print(city_lst)
     for i in range(len(name_lst)):
-        cur.execute("INSERT INTO Petfinder (num, breed) VALUES (?,?)",(i+1, name_lst[i])) #add location #iterate over doglist again
+        cur.execute("INSERT INTO Petfinder (num, breed, city) VALUES (?,?,?)",(i+1, name_lst[i], city_lst[i])) #add location #iterate over doglist again
                     # #print(name_lst)
         cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
     conn.commit()
@@ -120,15 +130,27 @@ def database(cur, conn, access_token):
 
 #calculation: how many of each dog breed in each country
 
+
+   
+
+
+
+
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5RWc1QnZYN0hqbHNCNWpMcWsyM1Y4TnJhajRBaVJKT3BWeEVVanNZc3djR1l4MTlBViIsImp0aSI6ImNiZjU3NTdiYzdjMjUzMjQyZTBiZWE0YTE5NTNlMTQ5MmE2ZjY2N2MxZDFhZWExYjlhMmY4MGQ2YTUzNTQyNDdlOTA5NDM2NDM3YjRkNzE4IiwiaWF0IjoxNjE4ODUxNzI2LCJuYmYiOjE2MTg4NTE3MjYsImV4cCI6MTYxODg1NTMyNiwic3ViIjoiIiwic2NvcGVzIjpbXX0.QxOmbf9r2oOCesIqp7XqWIUc-peMuXH042ybkm95HwFD8FZS3qBDD_IZf03LuRdSOhJrr7WqfNrZ4LsmB1cRgB9HcZd7Xf_8HeXCKYXwqSZJoh6O2OtFD8SvOOimkFxpfCxE8C9HyapVUa80UjKUzw33FlTij4yudUC4i0zyZFzvZEhCkEF3OcL1BJzMX9XYOkkQEr1EI2VK5N01uCOTB_FwDouUN38dkwa31hlVkfToVsC5Nn7f8CYna4v3FG_oE8KECh2pj1NW1O1vg6ayh7nY7DzkSODkhXzj4R9XTVC80sSkeMvQFptBx3leeT0Z2Z3GdtHxCRkoiQ7HuYcn1A"
+    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJCNW1EZE9FTUZOWXFiV0I3d2t1bHlmbGR4RHYzYzIxQXlsa1pyczJMbmJLNkU3U3ZGRiIsImp0aSI6ImRmYTgzOWE0ODFiODUyZjU2MTI4OTJjOGRkZTA5YzRmYWY3MjJiOTc0ZWY5ODA2ODgyZGJlZGNmNTQ0YTZkZmEwY2JjMzk5YTIyMDdlMjVjIiwiaWF0IjoxNjE4ODU1NzA0LCJuYmYiOjE2MTg4NTU3MDQsImV4cCI6MTYxODg1OTMwNCwic3ViIjoiIiwic2NvcGVzIjpbXX0.P9ecWig-YXsCN931BISBNXL0yipg1bkferbVGdMtto7Y-vd0kEc91LqRnhsQvYwC7QFeqZAiguKdahoqCZV5ErqLydOpODTvC_40Ul3_wBeQpqzvKMM9fbKVk5Hm7ezWmKF8fmjkCZAOpH8fWyAw_peI79CbOdWOfS6J-lS1BKo5PGSkUnsd-cOtc3dzj19sA-BVlL_yUzpvVMxDi0xN1Cb92GpM9lG1mEcpU2BBXaun5hJ9Ni7yE3bRyLDcaA3wcZnSaTXflcLJwVWyFqn0-mod0ZFwn799dBhX7tEDpdMN8WnuLlo_ERexBGKDEtTN95g0GeI_N0jSqOoN8bHkGg"
     database(cur, conn, access_token)
     create_request_url(cur, conn, access_token)
 
+
 if __name__ == "__main__":
     main()
+
+
+
+
+
 
 
 # import json
