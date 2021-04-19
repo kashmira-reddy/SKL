@@ -33,7 +33,7 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=ZXhVgwZt9gkDhm14UDoREhu9CevOv6Gdio2XbVk555HikW4I0s&client_secret=LnCCrPT2wRpuxXvJ2rLrS0sXMXnrfX38dZPsuDp5" https://api.petfinder.com/v2/oauth2/token
+#curl -d "grant_type=client_credentials&client_id=9Eg5BvX7HjlsB5jLqk23V8Nraj4AiRJOpVxEUjsYswcGYx19AV&client_secret=CxGRH6Mc6nQdqvjwd4PzZcyzE2e0kXOe9iuPEv9k" https://api.petfinder.com/v2/oauth2/token
 
 def create_request_url(cur, conn, access_token):
     base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=1"
@@ -41,14 +41,17 @@ def create_request_url(cur, conn, access_token):
     data = r.text
     d = json.loads(data)
     dog_lst = []
-    for i in d:
-        new_lst=d[i]
+    count = 0
+    while count < 25:
+        for i in d:
+            new_lst=d[i]
         # print(new_lst)
-        for one in new_lst:
+            for one in new_lst:
             #print(one)
-            for name in one.keys():
-                if name=='name':
-                    dog_lst.append(one[name])
+                for name in one.keys():
+                    if name=='name':
+                        dog_lst.append(one[name])
+                        count+=1
     #print(dog_lst)
     return dog_lst
         
@@ -56,9 +59,10 @@ def database(cur, conn, access_token):
     cur.execute("SELECT breed FROM Dogs")
     breed_lst = cur.fetchall()
     #print(breed_lst)
-    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (id INTEGER PRIMARY KEY, 'breed' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (num INTEGER PRIMARY KEY, 'breed' TEXT)")
     dog_lst=create_request_url(cur, conn, access_token)
     #print(dog_lst)
+    name_lst=[]
     for i in breed_lst:
         #print(i)
         for x in i:
@@ -66,18 +70,23 @@ def database(cur, conn, access_token):
             if x in dog_lst:
                 #print(x)
                 #print(i)
-                base_url="https://api.petfinder.com/v2/animals?breed={}"
+                base_url="https://api.petfinder.com/v2/animals?breed={}&limit=1"
                 request_url=base_url.format(x)
                 r=requests.get(request_url, headers={"Authorization": "Bearer " + access_token})
                 data=r.text
-                name_lst=[]
+                
                 data_dict=json.loads(data)
-                for i in range(len(data_dict['animals'])):
-                    name_lst.append(data_dict['animals'][i]['breeds']['primary'])
-                    cur.execute("INSERT INTO Petfinder (id, breed) VALUES (?,?)",(i+1, x)) #add location
-                #print(name_lst)
-                #cur.execute("SELECT Petfinder.breed FROM Petfinder JOIN Dogs WHERE Petfinder.id = Dogs.id AND Dogs.breed = ?", (str(i), ))
-                conn.commit()
+                #print(data_dict)
+            
+                for index in range(len(data_dict['animals'])):
+                
+                    name_lst.append(data_dict['animals'][index]['breeds']['primary'])
+    #print(name_lst)
+    for i in range(len(name_lst)):
+        cur.execute("INSERT INTO Petfinder (num, breed) VALUES (?,?)",(i+1, name_lst[i])) #add location #iterate over doglist again
+                    # #print(name_lst)
+        cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
+    conn.commit()
         #print(data_dict)
     
             #print(i[x])
@@ -111,14 +120,12 @@ def database(cur, conn, access_token):
 
 #calculation: how many of each dog breed in each country
 
-
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJaWGhWZ3dadDlna0RobTE0VURvUkVodTlDZXZPdjZHZGlvMlhiVms1NTVIaWtXNEkwcyIsImp0aSI6Ijk1YTZhMTQwN2FmODM4YmI4NDBhMmNjNjU2MWU3M2NjNzQ1MWNmNDllMDM3MGM4Yjg0ZTk3ZDk4YzI4NzM0MWUwNDJkYmMxOGU5YWRjM2E5IiwiaWF0IjoxNjE4NzY3OTM1LCJuYmYiOjE2MTg3Njc5MzUsImV4cCI6MTYxODc3MTUzNSwic3ViIjoiIiwic2NvcGVzIjpbXX0.N2W7oyRlcODGaZvIZ4oCVSkaTfw5S_ppChVaZ4kCPWsGWeXIXEsqY8_RY_kZw1RMJCcudIPOET9vMhcc_RhjdLunHAcrxLBVdREG27t894Cjefe-nUhFjVGwWN3OSIKZ89fLDbzTPR8lfn5oLAmsOyLym1D5fcdzKEzQPekp177-3qlj891EYkrMWB8cX6dtkXP7kE4Xat_S4vJ0PU6P9QGFUhaSft5_wcbyaWmMn5fxiT3Z17azRBkrzzBwpIqmi-agK-16Ny29sTVoaQ7-nl0v98iidSw6EMW93wtssES8-m0SH6Lz1Kg0-huYS_MIeoleTg3Tp-OukirVAF2Dqw"
+    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5RWc1QnZYN0hqbHNCNWpMcWsyM1Y4TnJhajRBaVJKT3BWeEVVanNZc3djR1l4MTlBViIsImp0aSI6ImNiZjU3NTdiYzdjMjUzMjQyZTBiZWE0YTE5NTNlMTQ5MmE2ZjY2N2MxZDFhZWExYjlhMmY4MGQ2YTUzNTQyNDdlOTA5NDM2NDM3YjRkNzE4IiwiaWF0IjoxNjE4ODUxNzI2LCJuYmYiOjE2MTg4NTE3MjYsImV4cCI6MTYxODg1NTMyNiwic3ViIjoiIiwic2NvcGVzIjpbXX0.QxOmbf9r2oOCesIqp7XqWIUc-peMuXH042ybkm95HwFD8FZS3qBDD_IZf03LuRdSOhJrr7WqfNrZ4LsmB1cRgB9HcZd7Xf_8HeXCKYXwqSZJoh6O2OtFD8SvOOimkFxpfCxE8C9HyapVUa80UjKUzw33FlTij4yudUC4i0zyZFzvZEhCkEF3OcL1BJzMX9XYOkkQEr1EI2VK5N01uCOTB_FwDouUN38dkwa31hlVkfToVsC5Nn7f8CYna4v3FG_oE8KECh2pj1NW1O1vg6ayh7nY7DzkSODkhXzj4R9XTVC80sSkeMvQFptBx3leeT0Z2Z3GdtHxCRkoiQ7HuYcn1A"
     database(cur, conn, access_token)
     create_request_url(cur, conn, access_token)
-
 
 if __name__ == "__main__":
     main()
