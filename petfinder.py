@@ -33,7 +33,7 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=xGlDDR1SOlgWhvQ1kwzGhJHIu2iQzB92DEAv0D5cGy0ufhgxs5&client_secret=xBAAKuwemHGPdAPxiEzcXKscq8fJD6istTPzjLOj" https://api.petfinder.com/v2/oauth2/token
+#curl -d "grant_type=client_credentials&client_id=xGlDDR1SOlgWhvQ1kwzGhJHIu2iQzB92DEAv0D5cGy0ufhgxs5&client_secret=Lb6VYGdVAjPTuTYKFE9DRduioX1JYKyXCb0fxRK1" https://api.petfinder.com/v2/oauth2/token
 
 def petfinder_create_request_url(cur, conn, access_token):
     base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=1"
@@ -96,7 +96,7 @@ def petfinder_database(cur, conn, access_token):
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ4R2xERFIxU09sZ1dodlExa3d6R2hKSEl1MmlRekI5MkRFQXYwRDVjR3kwdWZoZ3hzNSIsImp0aSI6ImZhNTRhNmNkNGQzZWI1MjdjMmEzY2RmODUyZGJhZmFjZTdhNTM4NzdiMmNmMDlhZGNjMDQ2ODQ1NmFkNTE2YThhYmY3ZjIxOGI3YjUyM2RiIiwiaWF0IjoxNjE4ODg1MzkxLCJuYmYiOjE2MTg4ODUzOTEsImV4cCI6MTYxODg4ODk5MSwic3ViIjoiIiwic2NvcGVzIjpbXX0.SUgwKbm9XT3XJFNww3WVc7FdrT1X8sh3FprM4ycpyb3PwMuEJfVcjZcUqGF9OPa0SVIIWBjtaAyg59_sQPA2dkox62NG8r6fYEo1F8_7B2XEkKcSXAOGIR9VvZ5W6pRfhJshdxGnCYwZrVsUM_lXcgVuvtSSWB4vbA-phk-mQkIZ-711QzEuDObqq_qscTiTJvgvSw-ykSVKKlwYQ6phYW29UsCg7nIjsun9esb3ugTxJ3Q4QgewMNJKN-vIVpkCGo_BEXEDiOHJco0bHaPmCkAcZGkJHBaZa6bpcIuH5UZ5tqTcKKhSwIcYvERvIHOFM77_Xe02AWGyECqlSQJYnA"
+    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ4R2xERFIxU09sZ1dodlExa3d6R2hKSEl1MmlRekI5MkRFQXYwRDVjR3kwdWZoZ3hzNSIsImp0aSI6IjdmYmQ4YmVkYTRlOTJkOTUxMWVhODIxMzE2NDIwMjM3MzRkZmQ1ZjY3NTEyMGEwMmE4MTM1MWFjNWJmNTA1MzAwYTYyZWU5Yzc2M2JhNWVjIiwiaWF0IjoxNjE4OTMyODIzLCJuYmYiOjE2MTg5MzI4MjMsImV4cCI6MTYxODkzNjQyMywic3ViIjoiIiwic2NvcGVzIjpbXX0.Ddz_LsE9EOpPdVhfjGVjc91yoGV31z7FtAzxVu8et2A6Kx68Tp2-IyewiNXKkmyGtyy-9td6JHfwLT2eozdyMtW77Rny4prGTPvKtXXkJJbtmAQP9Y5WReJW-u1oMcbenQ3vs2RVkOxOBOWx8APbsruYkFCWnnZVmdH9_fC-6wN3TX6EuRy9QPnWbYTq5i2a-o0DVBeoLzt5lCdKdz0ASpdrbSkVYvYYyo3TumdtCf2KNlq7amauoZ0w6CXQcsEoZlZ-IxEAjWwCyB6O_7itXYOkthb09R2kqZhr8IHm9aFuXjuc5arBBGfzKW57AsVWhJFHIaPWk8qFF78U46AcQg"
     petfinder_database(cur, conn, access_token)
     petfinder_create_request_url(cur, conn, access_token)
 

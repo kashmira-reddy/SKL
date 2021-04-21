@@ -6,7 +6,7 @@ import requests
 
 def read_cache(CACHE_FNAME):
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    CACHE_FNAME = dir_path + '/' + "cache_petfinder.json"
+    CACHE_FNAME = dir_path + '/' + "cache_weather.json"
     try:
         # Try to read the data from the file
         cache_file = open(CACHE_FNAME, 'r', encoding="utf-8")
@@ -21,7 +21,7 @@ def read_cache(CACHE_FNAME):
         return CACHE_DICTION
 
 def write_cache(CACHE_FNAME, CACHE_DICT):
-    CACHE_FNAME = "cache_petfinder.json"
+    CACHE_FNAME = "cache_weather.json"
     cache_file = open(CACHE_FNAME, 'w', encoding="utf-8")
     name = json.dumps(CACHE_DICT)
     cache_file.write(name)
@@ -37,29 +37,48 @@ def weather_create_request_url(cur, conn):
     cur.execute('SELECT City, State, Country FROM Petfinder')
     x=cur.fetchall()
     #print(x)
-    cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'city' TEXT, 'state' TEXT, 'country' TEXT, 'weather' TEXT)")
-    
+    #cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'city' TEXT, 'state' TEXT, 'country' TEXT, 'weather' TEXT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'weather' TEXT, 'temp' TEXT, 'humidity' TEXT)")
+
+    # execute statement; indexing
     # might not need city, state, country - use id instead
     # which weather data to collect?
     # loop through first 25 - len of table (count)=0 start at length; increment count; break - repeat
-
+    weather_lst=[]
+    temp_lst=[]
+    humidity_lst=[]
+    d = []
     for tup in x:
-        base_url = f"http://api.openweathermap.org/data/2.5/weather?q={tup[0]},{tup[1]},{tup[2]}&appid=e6367458ffd6fac896cd01a8ec82131c" 
+        base_url = f"http://api.openweathermap.org/data/2.5/weather?q={tup[0]},{tup[1]},{tup[2]}&units=imperial&appid=e6367458ffd6fac896cd01a8ec82131c" 
         r = requests.get(base_url)
         data = r.text
-        d = json.loads(data)
-    print(d)
-        # for i in d:
-        #     new_lst=d[i]
-        #     print(new_lst)
-    #     for name in new_lst.keys():
-    #         if name=='name':
-    #             weather_lst.append(i[name])
-    # print(weather_lst)
-    # return weather_lst
+        d.append(json.loads(data))
+    #print(d)
+    
+    for i in d:
+        #print(i)
+        weather=i.get('weather', 0)
+        if weather==0:
+            weather_lst.append('None')
+        else:
+            weather_lst.append(i['weather'][0]['main'])
+    #print(weather_lst)
+        temp=i.get('main', 0)
+        if temp==0:
+            temp_lst.append('None')
+        else:
+            temp_lst.append(i['main']['feels_like'])
+    #print(temp_lst)
+        humidity=i.get('main', 0)
+        if humidity==0:
+            humidity_lst.append('None')
+        else:
+            humidity_lst.append(i['main']['humidity'])
+    #print(humidity_lst)
+
     for i in range(len(x)):
-        cur.execute("INSERT INTO Weather (num2, city, state, country, weather) VALUES (?,?,?,?,?)",(i+1, city_lst[i], state_lst[i], country_lst[i], weather_lst[i]))
-        cur.execute("SELECT * FROM Weather JOIN Petfinder WHERE Weather.city = Petfinder.city AND Weather.state = Petfinder.state")
+        cur.execute("INSERT INTO Weather (num2, weather, temp, humidity) VALUES (?,?,?,?)",(i+1, weather_lst[i], temp_lst[i], humidity_lst[i]))
+        cur.execute("SELECT * FROM Weather JOIN Petfinder WHERE Weather.num2 = Petfinder.num")
     conn.commit()
 
 def main():
