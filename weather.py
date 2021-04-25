@@ -40,10 +40,11 @@ def weather_create_request_url(cur, conn):
     #cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'city' TEXT, 'state' TEXT, 'country' TEXT, 'weather' TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'weather' TEXT, 'temp' TEXT, 'humidity' TEXT)")
 
-    # execute statement; indexing
     # might not need city, state, country - use id instead
-    # which weather data to collect?
     # loop through first 25 - len of table (count)=0 start at length; increment count; break - repeat
+    # what is the 25 limit?
+    # what exactly are we supposed to select and calculate? do we need a new table?
+    
     weather_lst=[]
     temp_lst=[]
     humidity_lst=[]
@@ -76,8 +77,12 @@ def weather_create_request_url(cur, conn):
             humidity_lst.append(i['main']['humidity'])
     #print(humidity_lst)
 
-    for i in range(len(x)):
-        cur.execute("INSERT INTO Weather (num2, weather, temp, humidity) VALUES (?,?,?,?)",(i+1, weather_lst[i], temp_lst[i], humidity_lst[i]))
+    cur.execute("SELECT MAX (num2) FROM Weather")
+    starting_idx=cur.fetchone()[0]
+    if starting_idx==None:
+        starting_idx=0
+    for i in range(starting_idx, starting_idx+25):
+        cur.execute("INSERT INTO Weather (weather, temp, humidity) VALUES (?,?,?)",(weather_lst[i], temp_lst[i], humidity_lst[i]))
         cur.execute("SELECT * FROM Weather JOIN Petfinder WHERE Weather.num2 = Petfinder.num")
     conn.commit()
 
