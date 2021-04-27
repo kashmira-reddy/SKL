@@ -37,14 +37,8 @@ def weather_create_request_url(cur, conn):
     cur.execute('SELECT City, State, Country FROM Petfinder')
     x=cur.fetchall()
     #print(x)
-    #cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'city' TEXT, 'state' TEXT, 'country' TEXT, 'weather' TEXT)")
     cur.execute("CREATE TABLE IF NOT EXISTS Weather (num2 INTEGER PRIMARY KEY, 'weather' TEXT, 'temp' TEXT, 'humidity' TEXT)")
 
-    # might not need city, state, country - use id instead
-    # loop through first 25 - len of table (count)=0 start at length; increment count; break - repeat
-    # what is the 25 limit?
-    # what exactly are we supposed to select and calculate? do we need a new table?
-    
     weather_lst=[]
     temp_lst=[]
     humidity_lst=[]

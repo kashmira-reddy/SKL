@@ -33,7 +33,7 @@ def setUpDatabase(db_name):
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=9Eg5BvX7HjlsB5jLqk23V8Nraj4AiRJOpVxEUjsYswcGYx19AV&client_secret=CxGRH6Mc6nQdqvjwd4PzZcyzE2e0kXOe9iuPEv9k" https://api.petfinder.com/v2/oauth2/token
+#curl -d "grant_type=client_credentials&client_id=xGlDDR1SOlgWhvQ1kwzGhJHIu2iQzB92DEAv0D5cGy0ufhgxs5&client_secret=yC3mSvH1O2i3IpfSt2RihPrRcCChGQ74pKqZwLVp" https://api.petfinder.com/v2/oauth2/token
 
 def petfinder_create_request_url(cur, conn, access_token):
     base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=1"
@@ -60,7 +60,6 @@ def petfinder_database(cur, conn, access_token):
     for x in breed_lst:
         new_breed_lst.append(x[0])
     #print(new_breed_lst)
-    cur.execute("DROP TABLE IF EXISTS Petfinder")
     cur.execute("CREATE TABLE IF NOT EXISTS Petfinder (num INTEGER PRIMARY KEY, 'breed' TEXT, 'city' TEXT, 'state' TEXT, 'country' TEXT)")
     dog_lst=petfinder_create_request_url(cur, conn, access_token)
     #print(dog_lst)
@@ -100,19 +99,10 @@ def petfinder_database(cur, conn, access_token):
         cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
     conn.commit()
 
-    # for i in range(len(name_lst)):
-    #     cur.execute("INSERT INTO Petfinder (breed, city, state, country) VALUES (?,?,?,?)",(name_lst[i], city_lst[i], state_lst[i], country_lst[i]))
-    #     cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
-    # conn.commit()
-        #print(data_dict)
-    
-    #         #print(i[x])
-    #         #print(lst)
-
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5RWc1QnZYN0hqbHNCNWpMcWsyM1Y4TnJhajRBaVJKT3BWeEVVanNZc3djR1l4MTlBViIsImp0aSI6ImVmODZkYTJjZGQ3NTZmOTU1YjU2YzdhODRiNzRiNWI0ZWYyZWViZTcyM2JkMGRiYzJjMzgzZTUyZjAwNjAyYmU3YzU1MzgyZjAyN2M3YjQ5IiwiaWF0IjoxNjE5MzcwNTI5LCJuYmYiOjE2MTkzNzA1MjksImV4cCI6MTYxOTM3NDEyOSwic3ViIjoiIiwic2NvcGVzIjpbXX0.gobzGQnrISti7Qdtdv0gM-3I4Z94nAYoldt5xTCpbwr1YSJ0x-jwDOzDSkXsyMy34Z1F_DHDTLAE95LV-Uo0WM9o4TgSjllE2ZxdFMdbPGraan2j-kshQ5_j4A-r-9kwR4yZQkwT_igzS9dF90S_UH3S9QvQgQQpwR2jiTAlXf_OqMNdRcRao0_9NuUesOtGwnDIAD7Str_0F7DQaNK5lKJWSVSc5M9qyjR7PAAsjldSgAJWfLiTm42g3NRxKMN2Rgdap0JbUaE1iMB588bFbAKg_hhuNuio8ihvhw6nfz93G2WIG3G_gXwqd37gru459OZ4_zSlJp31X3EidQ8_4A"
+    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ4R2xERFIxU09sZ1dodlExa3d6R2hKSEl1MmlRekI5MkRFQXYwRDVjR3kwdWZoZ3hzNSIsImp0aSI6IjUyYWRiZjMxYjBkOTkwOTBlYzg5OGYzYzBiNmFjYWRkMDhmMTdjNDJmN2I1ZDg5OWU3MmI3Njk0YmVlNWNjZWRmZDIxZTBkZjcwOTAyZjliIiwiaWF0IjoxNjE5Mzc4MzQ5LCJuYmYiOjE2MTkzNzgzNDksImV4cCI6MTYxOTM4MTk0OSwic3ViIjoiIiwic2NvcGVzIjpbXX0.iDXQfFTCWre3D-qoXo4IEhNNS1lh_BFDklNV2z-SofueXOeI4EgSC5LjbrdYTWKEXKigbH7a-7oeYobub3CPg_OEQO8jiSAKcfrnCukZmB7TvTPG9j2b0bf74-89Tp-WcSG4y5YpMs7AHyLAEot3WI0beg9igHOv_lD5rshjAxOndQXea1H2iI2KnbNPOYdDnyQqXOJOvBexY1U2n082-cArK7QhFvL-9AIfgTMpgeXJMV0qnsXyMNMV8DJdbQBuHqOC75HQ0OtQC3elrNo4vMXKxyZvvOqOiJR29XRWzhsjb9G-bSw9ZYjYzn44k_2SyXaJ4vXo7y5CuNugUK6BPg"
     petfinder_database(cur, conn, access_token)
     petfinder_create_request_url(cur, conn, access_token)
 
