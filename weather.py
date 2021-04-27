@@ -4,6 +4,7 @@ import sqlite3
 import os
 import requests
 
+
 def read_cache(CACHE_FNAME):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     CACHE_FNAME = dir_path + '/' + "cache_weather.json"
@@ -20,12 +21,14 @@ def read_cache(CACHE_FNAME):
         CACHE_DICTION = {}
         return CACHE_DICTION
 
+
 def write_cache(CACHE_FNAME, CACHE_DICT):
     CACHE_FNAME = "cache_weather.json"
     cache_file = open(CACHE_FNAME, 'w', encoding="utf-8")
     name = json.dumps(CACHE_DICT)
     cache_file.write(name)
     cache_file.close()
+
 
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
@@ -79,6 +82,13 @@ def weather_create_request_url(cur, conn):
         cur.execute("INSERT INTO Weather (weather, temp, humidity) VALUES (?,?,?)",(weather_lst[i], temp_lst[i], humidity_lst[i]))
         cur.execute("SELECT * FROM Weather JOIN Petfinder WHERE Weather.num2 = Petfinder.num")
     conn.commit()
+
+    # for i in range(len(x)):
+    #     cur.execute("INSERT INTO Weather (weather, temp, humidity) VALUES (?,?,?)",(weather_lst[i], temp_lst[i], humidity_lst[i]))
+    #     cur.execute("SELECT * FROM Weather JOIN Petfinder WHERE Weather.num2 = Petfinder.num")
+    # conn.commit()
+
+
 
 def main():
     # SETUP DATABASE AND TABLE

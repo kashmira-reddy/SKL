@@ -294,7 +294,7 @@ def height_by_state_data_viz(cur,conn):
         state.append(i)
         height.append(data4[i])
     fig, ax = plt.subplots()
-    ax.plot(state, height, 'g-')
+    ax.plot(state, height, '-c')
     ax.set_xlabel('States')
     ax.set_ylabel('Average Height in Feet')
     ax.set_title('Average Height of Dog Breeds per State')
@@ -307,27 +307,38 @@ def main():
     
     data1_processed=life_span_by_state(cur, conn)
     #print(data1_processed)
-    #life_span_by_state_data_viz(cur, conn)
+    life_span_by_state_data_viz(cur, conn)
     
     data2_processed=cities_with_clouds_or_clear(cur, conn)
-    
-    #cities_with_clouds_or_clear_data_viz(cur, conn)
+    #print(data2_processed)
+    cities_with_clouds_or_clear_data_viz(cur, conn)
     
     data3_processed=weight_by_state(cur, conn)
-    
-    #weight_by_state_data_viz(cur,conn)
+    #print(data3_processed)
+    weight_by_state_data_viz(cur,conn)
     
     data4_processed=height_by_state(cur, conn)
     #print(data4_processed)
-    #height_by_state_data_viz(cur,conn)
-   
-    with open('results.txt', 'w') as outfile:
-        temp_list = []
-        temp_list.append(data1_processed)
-        temp_list.append(data2_processed)
-        temp_list.append(data3_processed)
-        temp_list.append(data4_processed)
-        json.dump(temp_list, outfile)
- 
+    height_by_state_data_viz(cur,conn)
+
+    # with open('output.txt', 'w') as outfile:
+    #         temp_list = []
+    #         temp_list.append(data1_processed)
+    #         temp_list.append(data2_processed)
+    #         temp_list.append(data3_processed)
+    #         temp_list.append(data4_processed)
+    #         json.dump(temp_list, outfile)
+
+    with open('data_process.txt', 'w') as outfile:
+        print("1.Average Lifespan of Dog Breeds by State:", file=outfile)
+        print(data1_processed, file=outfile)
+        print("2.Number of Cities with Clouds and Clear Weather Conditions:", file=outfile)
+        print(data2_processed, file=outfile)
+        print("3.Average Weight of Dog Breeds per State:", file=outfile)
+        print(data3_processed, file=outfile)
+        print("4.Average Height of Dog Breeds per State:", file=outfile)
+        print(data4_processed, file=outfile)
+
 if __name__ == "__main__":
     main()
+

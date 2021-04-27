@@ -4,6 +4,7 @@ import sqlite3
 import os
 import requests
 
+
 def read_cache(CACHE_FNAME):
     dir_path = os.path.dirname(os.path.realpath(__file__))
     CACHE_FNAME = dir_path + '/' + "cache_petfinder.json"
@@ -20,6 +21,7 @@ def read_cache(CACHE_FNAME):
         CACHE_DICTION = {}
         return CACHE_DICTION
 
+
 def write_cache(CACHE_FNAME, CACHE_DICT):
     CACHE_FNAME = "cache_petfinder.json"
     cache_file = open(CACHE_FNAME, 'w', encoding="utf-8")
@@ -27,13 +29,14 @@ def write_cache(CACHE_FNAME, CACHE_DICT):
     cache_file.write(name)
     cache_file.close()
 
+
 def setUpDatabase(db_name):
     path = os.path.dirname(os.path.abspath(__file__))
     conn = sqlite3.connect(path+'/'+db_name)
     cur = conn.cursor()
     return cur, conn
 
-#curl -d "grant_type=client_credentials&client_id=xGlDDR1SOlgWhvQ1kwzGhJHIu2iQzB92DEAv0D5cGy0ufhgxs5&client_secret=yC3mSvH1O2i3IpfSt2RihPrRcCChGQ74pKqZwLVp" https://api.petfinder.com/v2/oauth2/token
+#curl -d "grant_type=client_credentials&client_id=9Eg5BvX7HjlsB5jLqk23V8Nraj4AiRJOpVxEUjsYswcGYx19AV&client_secret=CxGRH6Mc6nQdqvjwd4PzZcyzE2e0kXOe9iuPEv9k" https://api.petfinder.com/v2/oauth2/token
 
 def petfinder_create_request_url(cur, conn, access_token):
     base_url = "https://api.petfinder.com/v2/types/dog/breeds?limit=1"
@@ -43,7 +46,7 @@ def petfinder_create_request_url(cur, conn, access_token):
     dog_lst = []
     for i in d:
         new_lst=d[i]
-    # print(new_lst)
+    #print(new_lst)
         for one in new_lst:
         #print(one)
             for name in one.keys():
@@ -99,10 +102,19 @@ def petfinder_database(cur, conn, access_token):
         cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
     conn.commit()
 
+    # for i in range(len(name_lst)):
+    #     cur.execute("INSERT INTO Petfinder (breed, city, state, country) VALUES (?,?,?,?)",(name_lst[i], city_lst[i], state_lst[i], country_lst[i]))
+    #     cur.execute("SELECT * FROM Petfinder JOIN Dogs WHERE Petfinder.breed = Dogs.breed")
+    # conn.commit()
+        #print(data_dict)
+    
+    #         #print(i[x])
+    #         #print(lst)
+
 def main():
     # SETUP DATABASE AND TABLE
     cur, conn = setUpDatabase('dogs.db')
-    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJ4R2xERFIxU09sZ1dodlExa3d6R2hKSEl1MmlRekI5MkRFQXYwRDVjR3kwdWZoZ3hzNSIsImp0aSI6IjUyYWRiZjMxYjBkOTkwOTBlYzg5OGYzYzBiNmFjYWRkMDhmMTdjNDJmN2I1ZDg5OWU3MmI3Njk0YmVlNWNjZWRmZDIxZTBkZjcwOTAyZjliIiwiaWF0IjoxNjE5Mzc4MzQ5LCJuYmYiOjE2MTkzNzgzNDksImV4cCI6MTYxOTM4MTk0OSwic3ViIjoiIiwic2NvcGVzIjpbXX0.iDXQfFTCWre3D-qoXo4IEhNNS1lh_BFDklNV2z-SofueXOeI4EgSC5LjbrdYTWKEXKigbH7a-7oeYobub3CPg_OEQO8jiSAKcfrnCukZmB7TvTPG9j2b0bf74-89Tp-WcSG4y5YpMs7AHyLAEot3WI0beg9igHOv_lD5rshjAxOndQXea1H2iI2KnbNPOYdDnyQqXOJOvBexY1U2n082-cArK7QhFvL-9AIfgTMpgeXJMV0qnsXyMNMV8DJdbQBuHqOC75HQ0OtQC3elrNo4vMXKxyZvvOqOiJR29XRWzhsjb9G-bSw9ZYjYzn44k_2SyXaJ4vXo7y5CuNugUK6BPg"
+    access_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiI5RWc1QnZYN0hqbHNCNWpMcWsyM1Y4TnJhajRBaVJKT3BWeEVVanNZc3djR1l4MTlBViIsImp0aSI6IjFjYzQ1NmI2NmFlNmZiNTBkODNmOWRkNmIyMzhkMGZiNzY0NTRiNjlmYmY2Yzc3MDUxOTNjNThjNGM1ODhiYzU5NTY3NDA4ZjkxNTNjOTMwIiwiaWF0IjoxNjE5NTM1MjU2LCJuYmYiOjE2MTk1MzUyNTYsImV4cCI6MTYxOTUzODg1Niwic3ViIjoiIiwic2NvcGVzIjpbXX0.RpnQMaGDTgJEmMK7aQxG9mhoyUdn32tl-YL4WLvxRrzm5ThELXVhs4tvynHntLimyuJJKyLtQKJJDkvdfrheCMWegavrjBT--LUxn3uLoffTjvajZleQncSDHR1yP1MZXsNtNuPgsqmLh8wKmKcoB0QJvL58hhTSISa0N59AT5UD4qgZWyVqgu2LbimkNwJKGvAGAH9COLTQW071coudIfrB_UdBiM1a-VqlD5L3HfnJtsvt-TM_9A0Llfm2Vr27zMTaX49YgCLUqbK3rX_cdkdXVVFg5gmp-_uQUtfQmOvghT1ihiWxgc4cry3I-mCTrutcxeW9fT7IZbIlZ4m3Uw"
     petfinder_database(cur, conn, access_token)
     petfinder_create_request_url(cur, conn, access_token)
 
